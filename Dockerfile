@@ -1,9 +1,11 @@
-FROM openjdk:11
+FROM ubuntu:latest
 
+# install java and openjdk
 WORKDIR /app
 COPY . /app
 RUN apt-get update
 RUN apt-get install -y unzip
+RUN apt-get install -y openjdk-11-jdk
 # RUN ls
 
 RUN unzip -u jpbc-2.0.0.zip

@@ -1,0 +1,19 @@
+{
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "jpbc-2.0.0/jars/bcprov-jdk16-1.46.jar",
+            "jpbc-2.0.0/jars/jna-3.2.5.jar",
+            "jpbc-2.0.0/jars/jpbc-api-2.0.0.jar",
+            "jpbc-2.0.0/jars/jpbc-benchmark-2.0.0.jar",
+            "jpbc-2.0.0/jars/jpbc-crypto-2.0.0.jar",
+            "jpbc-2.0.0/jars/jpbc-mm-2.0.0.jar",
+            "jpbc-2.0.0/jars/jpbc-pbc-2.0.0.jar",
+            "jpbc-2.0.0/jars/jpbc-plaf-2.0.0.jar"
+        ],
+    },
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.project.sourcePaths": [
+        "src"
+    ]
+}
