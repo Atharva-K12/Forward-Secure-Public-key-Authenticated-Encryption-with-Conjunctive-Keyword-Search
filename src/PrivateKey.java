@@ -2,9 +2,9 @@ import it.unisa.dia.gas.jpbc.Element;
 
 public class PrivateKey {
 
-    public Element skS;
-    public PrivateKey(Element skS) {
-        this.skS = skS;
+    public Element sk;
+    public PrivateKey(Element sk) {
+        this.sk = sk;
     }
 
 }
