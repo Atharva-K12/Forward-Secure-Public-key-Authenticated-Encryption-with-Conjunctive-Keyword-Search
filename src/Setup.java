@@ -14,18 +14,23 @@ p, H2 : {0, 1}∗ → G,H3 : {0, 1}∗ → G and H4 :
 {0, 1}∗ → {0, 1}∗ are a couple of various hash functions
 with collision-resistance. Note that the system divides its
 lifetime into some periods 1, 2, · · · , poly(λ). */
+    Pairing e;
+    Field G1, G;
+    Element g;
+    HashFunction H1, H2, H3, H4;
+    GlobalParameters pp;
     public Setup() {
     // Choose bilinear map e : G × G → G1
-    Pairing e = PairingFactory.getPairing("jpbc-2.0.0/params/curves/a.properties");
+    this.e = PairingFactory.getPairing("jpbc-2.0.0/params/curves/a.properties");
 
     // Choose G1 and G as groups of prime order p
-    Field G1 = e.getGT();
-    Field G = e.getG1();
+    this.G1 = e.getGT();
+    this.G = e.getG1();
     // Choose g as a generator of G
-    Element g = G.newRandomElement().getImmutable();
+    this.g = G.newRandomElement().getImmutable();
 
     // H1 : {0, 1}∗ → Z∗ p is a hash function with collision-resistance
-    HashFunction H1 = new HashFunction() {
+    this.H1 = new HashFunction() {
         public byte[] hash(byte[] message) {
             BigInteger p = e.getG1().getOrder();
             BigInteger result = new BigInteger(message).mod(p);
@@ -34,7 +39,7 @@ lifetime into some periods 1, 2, · · · , poly(λ). */
     };
 
     // H2 : {0, 1}∗ → G is a hash function with collision-resistance
-    HashFunction H2 = new HashFunction() {
+    this.H2 = new HashFunction() {
         public byte[] hash(byte[] message) {
             BigInteger p = e.getG1().getOrder();
             BigInteger result = new BigInteger(message).mod(p);
@@ -43,7 +48,7 @@ lifetime into some periods 1, 2, · · · , poly(λ). */
     };
 
     // H3 : {0, 1}∗ → G is a hash function with collision-resistance
-    HashFunction H3 = new HashFunction() {
+    this.H3 = new HashFunction() {
         public byte[] hash(byte[] message) {
             BigInteger p = e.getG1().getOrder();
             BigInteger result = new BigInteger(message).mod(p);
@@ -52,7 +57,7 @@ lifetime into some periods 1, 2, · · · , poly(λ). */
     };
 
     // H4 : {0, 1}∗ → {0, 1}∗ is a hash function with collision-resistance
-    HashFunction H4 = new HashFunction() {
+    this.H4 = new HashFunction() {
         public byte[] hash(byte[] message) {
             //XOR with x00ff
             BigInteger xorval = new BigInteger("00ff", 16);
@@ -62,6 +67,10 @@ lifetime into some periods 1, 2, · · · , poly(λ). */
     };
     
     // Output global parameters pp = (G1 , G, e, H3 , H2 , H1 , g)
-    GlobalParameters pp = new GlobalParameters(G1, G, e, H3, H2, H1, g);
-    }  
+    this.pp = new GlobalParameters(G1, G, e, H3, H2, H1, g);
+    }
+    
+    public static void main(String[] args) {
+        
+    }
 }
