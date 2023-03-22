@@ -1,8 +1,5 @@
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.swing.text.ElementIterator;
 
 import it.unisa.dia.gas.jpbc.Element;
 
@@ -23,9 +20,9 @@ public class Encryption {
         Element r2 = pp.getE().getZr().newRandomElement().getImmutable();
         Element r3 = pp.getE().getZr().newRandomElement().getImmutable();
 
-        Element X = pp.getg().powZn(r1);
+        Element X = pp.getg().duplicate().powZn(r1);
 
-        Element k = pkR.pk.powZn(skS.sk);
+        Element k = pkR.pk.duplicate().powZn(skS.sk);
 
         /*Get the system time t and t is encoded as set T via
         0-encoding */
@@ -77,7 +74,7 @@ public class Encryption {
         
         Element[] Ri = new Element[xi.length];
         for(int j = 0; j < xi.length; j++){
-            Ri[j] = pkR.pk.powZn(ai[j]);
+            Ri[j] = pkR.pk.duplicate().powZn(ai[j]);
         }
         
         Element[] hi = new Element[W.length];
@@ -89,7 +86,7 @@ public class Encryption {
             byte[] Wj = W[j].getBytes();
             hi[j] = pp.getH2().hash(Wj, k);
             fi[j] = pp.getH3().hash(Wj, k);
-            CTi[j] = hi[j].powZn(r1).mul(fi[j].powZn(r2));
+            CTi[j] = hi[j].duplicate().powZn(r1).mul(fi[j].duplicate().powZn(r2));
         }
         // YI = H4(yi)
         for (int j = 0; j < yi.length; j++) {   
@@ -112,7 +109,7 @@ public class Encryption {
             for (int j = 1; j< n;j++){
                 temp = temp.add(A[j][i]);
             }
-            ai[i] = r3.mul(A[0][i]).add(temp.mul(r2));
+            ai[i] = r3.duplicate().mul(A[0][i]).add(temp.mul(r2));
         }
         return ai;
         
@@ -130,22 +127,58 @@ public class Encryption {
         return S0;
     }
 
-    private Element[] vietaFElements(Element[] roots, GlobalParameters pp, int ind) {
-        Element[] f = new Element[roots.length+1];
-        f[0] = pp.getE().getZr().newOneElement();
-        for (int i = 0; i < roots.length; i++) {
-            f[i+1]=pp.getE().getZr().newZeroElement();
-            for (int j = i+1; j > 0; j--) {
-                if (i != ind)
-                    f[j] = f[j].add(f[j - 1].mul(roots[i]));
-            }
-            // for (int j = 0; j <= i; j++) {
-            //     Element root_j = roots[j];
-            //     Element prev = f[i-j];
-            //     f[i+1].add(prev.mul(root_j));
-            // }
+    private Element[] vietaFElements(Element[] roots, int ind) {
+        // int n = roots.length;
+        // Element[] f = new Element[n];
+        // f[0] = roots[0].getField().newOneElement();
+        // // for (int i = 0; i < roots.length-1; i++) {
+        // //     f[i+1]=pp.getE().getZr().newZeroElement();
+        // //     for (int j = i+1; j > 0; j--) {
+        // //         if (i != ind)
+        // //             f[j] = f[j].add(f[j - 1].mul(roots[i]));
+        // //     }
+        // //     // for (int j = 0; j <= i; j++) {
+        // //     //     Element root_j = roots[j];
+        // //     //     Element prev = f[i-j];
+        // //     //     f[i+1].add(prev.mul(root_j));
+        // //     // }
+        // // }
+        // for (int i = 0; i<n;i++){
+        //     if (i==0)
+        //     {
+        //         f[i] = roots[0].getField().newOneElement();
+        //     }
+        //     else
+        //     {
+        //         f[i] = roots[0].getField().newZeroElement();
+        //     }
+        // }
+
+        // for (int i = 0; i < n; i++) {
+        //     if (i != ind) {
+        //         Element root_i = roots[i];
+        //         for (int j = n-1; j > 0; j--) {
+        //             f[j] = f[j].add(f[j - 1].mul(root_i));
+        //         }
+        //     }
+        // }
+
+        int n = roots.length - 1;
+        Element[] coeff = new Element[n + 1];
+        // Set all coefficients as zero initially
+        for (int i = 0; i <= n; i++) {
+            coeff[i] = roots[0].duplicate().setToZero();
         }
-        return f;
+        // Set highest order coefficient as 1
+        coeff[0].setToOne();
+        for (int i = 0; i < n; i++) {
+            if (i == ind) continue; // Skip the root at index ind
+            Element root = roots[i];
+            for (int j = i + 1; j > 0; j--) {
+                coeff[j] = coeff[j].add(root.duplicate().mul(coeff[j - 1]));
+            }
+        }
+        return coeff;
     }
     public Element calculateDenominator(Element[] elements, int i) {
         Element result = elements[i].duplicate().set(1); // start with element at index i
@@ -159,10 +192,10 @@ public class Encryption {
     }
     
     public Element[][] LagrangePolynomial(Element[] xi, GlobalParameters pp){
-        Element[][] A = new Element[xi.length+1][xi.length+1];
-        System.out.println(xi.length+1);
-        for (int i = 0; i <=xi.length; i++) {
-            A[i] = vietaFElements(xi, pp, i);
+        Element[][] A = new Element[xi.length][xi.length];
+        System.out.println(xi.length);
+        for (int i = 0; i < xi.length; i++) {
+            A[i] = vietaFElements(xi, i);
             Element a_denominator = calculateDenominator(xi, i);
             System.out.println(a_denominator);
             for (Element a : A[i]){
@@ -180,7 +213,7 @@ public class Encryption {
         KeyGenReceiver KGenRec = new KeyGenReceiver(pp);
         PublicKey pkR = KGenRec.pk_r;
         PrivateKey skS = KGenSend.sk_s;
-        String[] W = new String[]{"a", "b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+        String[] W = new String[]{"String1", "String2"};//,"c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 
         Encryption e = new Encryption(pkR, skS, W, pp);
 
