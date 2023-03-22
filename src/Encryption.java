@@ -54,18 +54,23 @@ public class Encryption {
         for 0 /∈ T. Finally, use these n + 1 points
         {(x0 , r3), (x1 , r2), (x2 , r2), · · · , (xn, r2)} to build a
         Lagrange polynomial */
-
-        Element x0 = pp.getH1().hash(new byte[]{0}, k);
+        HashFunction H1 = pp.getH1();
+        Element x0 = H1.hash(new byte[]{0}, k);
         Element[] xi = new Element[T.size()+1];
         xi[0]=x0;
         byte[] yi = new byte[T.size()+1];
         yi[0]=0;
         int i = 1;
         for (Integer y : T) {
-            xi[i] = pp.getH1().hash(new byte[]{(byte) y.intValue()}, k);
+            xi[i] = H1.hash(new byte[]{(byte) y.intValue()}, k);
             // System.out.println(xi[i]);
             yi[i] = y.byteValue();
             i++;
+        }
+
+        System.out.println("xi");
+        for (int j = 0; j < xi.length; j++) {
+            System.out.println(xi[j]);
         }
         
         
@@ -184,6 +189,14 @@ public class Encryption {
         Element result = elements[i].duplicate().set(1); // start with element at index i
         for (int j = 0; j < elements.length; j++) {
             if (j != i) {
+                if (elements[i].equals(elements[j]))
+                {
+                    System.out.println("Duplicate elements in array");
+                    System.out.println(elements[i]);
+                    System.out.println(elements[j]);
+                    elements[i].setToRandom(); //TODO: fix this
+                }
+                // throw new IllegalArgumentException("Duplicate elements in array");
                 Element diff = elements[i].duplicate().sub(elements[j]); // calculate difference between i and j
                 result = result.mul(diff); // multiply difference into running product
             }
@@ -194,6 +207,8 @@ public class Encryption {
     public Element[][] LagrangePolynomial(Element[] xi, GlobalParameters pp){
         Element[][] A = new Element[xi.length][xi.length];
         System.out.println(xi.length);
+        System.out.println(xi[0]);
+        System.out.println(xi[1]);
         for (int i = 0; i < xi.length; i++) {
             A[i] = vietaFElements(xi, i);
             Element a_denominator = calculateDenominator(xi, i);
