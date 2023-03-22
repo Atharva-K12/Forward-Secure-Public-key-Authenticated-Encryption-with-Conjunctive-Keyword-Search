@@ -7,16 +7,18 @@ public class GlobalParameters {
     private Field G1;
     private Field G;
     private Pairing e;
+    private HashFunction h4;
     private HashFunction h3;
     private HashFunction h2;
     private HashFunction h1;
     private Element g;
 
-    public GlobalParameters(Field G1, Field G, Pairing e, HashFunction h3, HashFunction h2, HashFunction h1,
+    public GlobalParameters(Field G1, Field G, Pairing e, HashFunction h4, HashFunction h3, HashFunction h2, HashFunction h1,
             Element g) {
         this.G1 = G1;
         this.G = G;
         this.e = e;
+        this.h4  = h4;
         this.h3 = h3;
         this.h2 = h2;
         this.h1 = h1;
@@ -46,6 +48,10 @@ public class GlobalParameters {
 
     public HashFunction getH1() {
         return h1;
+    }
+
+    public HashFunction getH4() {
+        return h4;
     }
 
     public Element getg() {

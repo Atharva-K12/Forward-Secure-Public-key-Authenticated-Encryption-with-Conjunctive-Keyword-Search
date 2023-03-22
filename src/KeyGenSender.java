@@ -9,21 +9,39 @@ public class KeyGenSender {
     PublicKey pk_s;
     PrivateKey sk_s;
 
+    // public KeyGenSender(GlobalParameters pp){
+        
+    //     // Choose an element β ∈ Z∗p at random
+    //     BigInteger p = pp.getG().getOrder();
+    //     Element beta = (Element) new BigInteger(p.bitLength(), new Random());
+        
+    //     // Compute pkS = g^β
+    //     Element pkS = pp.getG().newRandomElement().getImmutable();
+    //     pkS.powZn(beta);
+    //     // Compute skS = β
+    //     Element skS = pp.getG().newRandomElement().getImmutable();
+    //     skS.set(beta);
+    //     // Output (pkS , skS)
+    //     this.pk_s = new PublicKey(pkS);
+    //     this.sk_s = new PrivateKey(skS);        
+    // }
+
     public KeyGenSender(GlobalParameters pp){
         
         // Choose an element β ∈ Z∗p at random
-        BigInteger p = pp.getG().getOrder();
-        Element beta = (Element) new BigInteger(p.bitLength(), new Random());
-        
+        BigInteger p = pp.getE().getZr().getOrder();
+        BigInteger beta = new BigInteger(p.bitLength(), new Random());
+            
         // Compute pkS = g^β
-        Element pkS = pp.getG().newRandomElement().getImmutable();
-        pkS.powZn(beta);
+        Element pkS = pp.getg().pow(beta);
+        
         // Compute skS = β
-        Element skS = pp.getG().newRandomElement().getImmutable();
-        skS.set(beta);
+        Element skS = pp.getE().getZr().newElement(beta);
+        
         // Output (pkS , skS)
         this.pk_s = new PublicKey(pkS);
         this.sk_s = new PrivateKey(skS);        
     }
+    
     
 }
