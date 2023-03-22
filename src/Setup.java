@@ -3,7 +3,6 @@ import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
 import it.unisa.dia.gas.jpbc.Pairing;
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
-import it.unisa.dia.gas.plaf.jpbc.util.Arrays;
 
 public class Setup {
     /*
@@ -42,23 +41,40 @@ public class Setup {
             }
 
             @Override
-            public Element hash(byte[] message, Element kappa) {
+            public Element hash(byte[] message, Element kappa){
+                // BigInteger p = e.getZr().getOrder();
+                // byte[] kappaBytes = kappa.toBytes();
+
+                // // concatenate kappa to message
+                // byte[]concatenated = new byte[message.length + kappaBytes.length];
+                // System.arraycopy(message, 0, concatenated, 0, message.length);
+                // System.arraycopy(kappaBytes, 0, concatenated, message.length, kappaBytes.length);
+    
+                // BigInteger result = new BigInteger(concatenated).mod(p);
+
+                // // Convert the BigInteger result to Element Object
+
+                // byte[] resultBytes = result.toByteArray();
+                // Element rElement = e.getZr().newElementFromBytes(resultBytes);
+
+                // return rElement;
+
                 BigInteger p = e.getZr().getOrder();
                 byte[] kappaBytes = kappa.toBytes();
 
-                // concatenate kappa to message
                 byte[]concatenated = new byte[message.length + kappaBytes.length];
                 System.arraycopy(message, 0, concatenated, 0, message.length);
                 System.arraycopy(kappaBytes, 0, concatenated, message.length, kappaBytes.length);
-    
-                BigInteger result = new BigInteger(concatenated).mod(p);
 
-                // Convert the BigInteger result to Element Object
+                // hash the concatenated message using SHA-256
+                // MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                // byte[] hashBytes = digest.digest(concatenated);
+                 
 
-                byte[] resultBytes = result.toByteArray();
-                Element rElement = e.getZr().newElementFromBytes(resultBytes);
-
+                // return the hash value as Element
+                Element rElement = e.getZr().newElementFromHash(concatenated, 0, concatenated.length);
                 return rElement;
+
             }
         };
 
@@ -71,7 +87,7 @@ public class Setup {
             }
 
             @Override
-            public Element hash(byte[] message, Element kappa) {
+            public Element hash(byte[] message, Element kappa)  {
                 BigInteger p = e.getG1().getOrder();
                 byte[] kappaBytes = kappa.toBytes();
 
@@ -79,12 +95,19 @@ public class Setup {
                 System.arraycopy(message, 0, concatenated, 0, message.length);
                 System.arraycopy(kappaBytes, 0, concatenated, message.length, kappaBytes.length);
 
-                BigInteger result = new BigInteger(concatenated).mod(p);
+                // BigInteger result = new BigInteger(concatenated).mod(p);
+
+                // MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                // byte[] hashBytes = digest.digest(concatenated);
 
                 // Convert the BigInteger result to Element Object
 
-                byte[] resultBytes = result.toByteArray();
-                Element rElement = e.getZr().newElementFromBytes(resultBytes);
+                // byte[] resultBytes = result.toByteArray();
+                // Element rElement = e.getZr().newElementFromBytes(resultBytes);
+
+                // Element rElement = e.getZr().newElementFromBytes(hashBytes);
+
+                Element rElement = e.getG1().newElementFromHash(concatenated, 0, concatenated.length);
 
                 return rElement;
             }
@@ -107,12 +130,20 @@ public class Setup {
                 System.arraycopy(message, 0, concatenated, 0, message.length);
                 System.arraycopy(kappaBytes, 0, concatenated, message.length, kappaBytes.length);
 
-                BigInteger result = new BigInteger(concatenated).mod(p);
+                // BigInteger result = new BigInteger(concatenated).mod(p);
+
+                // MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                // byte[] hashBytes = digest.digest(concatenated);
+
+
 
                 // Convert the BigInteger result to Element Object
 
-                byte[] resultBytes = result.toByteArray();
-                Element rElement = e.getZr().newElementFromBytes(resultBytes);
+                // byte[] resultBytes = result.toByteArray();
+                // Element rElement = e.getZr().newElementFromBytes(resultBytes);
+
+                // Element rElement = e.getZr().newElementFromBytes(hashBytes);
+                Element rElement = e.getG1().newElementFromHash(concatenated, 0, concatenated.length);
 
                 return rElement;
             }
