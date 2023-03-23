@@ -6,10 +6,11 @@ import it.unisa.dia.gas.jpbc.Element;
 public class Trapdoor {
 
     public Element[] piYi;
-    public Set<Integer> T_dash;
+    public Set<byte[]> T_dash;
     public Element pi1;
     public Element pi2;
     public Element pi3;
+    public byte [][] hYi_dash;
 
     public Trapdoor(PrivateKey skR, PublicKey pkS, String [] Q, GlobalParameters pp, Element[] hi, Element[] fi)
     {
@@ -28,27 +29,30 @@ public class Trapdoor {
 
         long t_dash = System.currentTimeMillis();
         String binaryT_dash = Long.toBinaryString(t_dash);
-        Set<Integer> T_dash = oneEncoding(binaryT_dash);
+        Set<byte[]> T_dash = oneEncoding(binaryT_dash);
         Element[] piYi = new Element[T_dash.size()];
+        byte[][] yi = new byte[T_dash.size()+1][];
+        yi[0]=new byte[]{0};
         int i = 0;
-        for (Integer Y: T_dash){
-            piYi[i] = pp.getH1().hash(new byte[]{Y.byteValue()}, K);
+        for (byte[] Y: T_dash){
+            piYi[i] = pp.getH1().hash(Y, K);
+            yi[i+1] = Y;
             i++;
         }
         
+        this.hYi_dash = pp.getH4().hash(yi);
         this.piYi = piYi;
         this.T_dash = T_dash;       
     }
-    public Set<Integer> oneEncoding(String m) {
-        Set<Integer> S1 = new HashSet<>();
+    public static Set<byte[]> oneEncoding(String m) {
+        Set<byte []> S1 = new HashSet<byte []>();
         for (int i = 0; i < m.length(); i++) {
             if (m.charAt(i) == '1') {
-                String substring = m.substring(i, Math.min(i+1, m.length()));
-                int value = Integer.parseInt(substring, 2);
-                S1.add(value);
+                S1.add((m.substring(0, i+1)).getBytes());
             }
         }
         return S1;
     }
     
 }
+

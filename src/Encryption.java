@@ -47,32 +47,56 @@ public class Encryption {
         //     System.out.println(i);
         //     System.out.println(bytesT[i]);
         // }
-        Set<Integer> T = zeroEncoding(binaryT);
-
+        Set<byte[]> T = zeroEncoding(binaryT);
         /*Compute xi = H1(yi, κ) for yi ∈ T and 1 ≤
         i ≤ n, and then set x0 = H1(0, κ) individually
         for 0 /∈ T. Finally, use these n + 1 points
         {(x0 , r3), (x1 , r2), (x2 , r2), · · · , (xn, r2)} to build a
         Lagrange polynomial */
+        // print all values of T
+
+        // Set<byte[]> uniqueValues = new HashSet<>(T);
+        // for (byte[] y : uniqueValues) {
+
+        //     // convert byte array to string
+        //     String str = new String(y);
+        //     // System.out.println(str);
+        // }
+
+        
+
+        // System.out.println("-T");
         HashFunction H1 = pp.getH1();
         Element x0 = H1.hash(new byte[]{0}, k);
         Element[] xi = new Element[T.size()+1];
         xi[0]=x0;
-        byte[] yi = new byte[T.size()+1];
-        yi[0]=0;
+        byte[][] yi = new byte[T.size()+1][T.size()+1];
+        yi[0]=new byte[]{0};
         int i = 1;
-        for (Integer y : T) {
-            xi[i] = H1.hash(new byte[]{(byte) y.intValue()}, k);
-            // System.out.println(xi[i]);
-            yi[i] = y.byteValue();
+        for (byte[] y : T) {
+            xi[i] = H1.hash(y, k);
+            Boolean tempBoolean = xi[i].equals(xi[i-1]);
+            yi[i] = y;
             i++;
         }
-
-        System.out.println("xi");
-        for (int j = 0; j < xi.length; j++) {
-            System.out.println(xi[j]);
+        int d=0;
+        for ( i = 0; i < xi.length; i++) {
+            for (int j = i + 1; j < xi.length; j++) {
+                if (xi[i].equals(xi[j])) {
+                    // System.out.println("Duplicate Element : " + xi[i]);
+                    d++;
+                }
+            }
         }
-        
+        // System.out.println("d");
+        // System.out.println(d);
+
+
+        // System.out.println("xi");
+        // for (int j = 0; j < xi.length; j++) {
+        //     System.out.println(xi[j]);
+        // }
+        // System.out.println("-xi");
         
         Element[][] A = LagrangePolynomial(xi, pp);
         Element [] ai = aiCoefficient(A,r2,r3);
@@ -96,7 +120,7 @@ public class Encryption {
         // YI = H4(yi)
         for (int j = 0; j < yi.length; j++) {   
         }
-        byte [] HashYi = pp.getH4().hash(yi);
+        byte [][] HashYi = pp.getH4().hash(yi);
 
 
         this.ct = new CipherKeyword(HashYi, X, Ri, CTi);
@@ -106,8 +130,8 @@ public class Encryption {
     }
     public Element[] aiCoefficient(Element[][]A,Element r2,Element r3){
         int n = A[0].length;
-        System.out.println(n);
-        System.out.println(A.length);
+        // System.out.println(n);
+        // System.out.println(A.length);
         Element []ai = new Element[A[0].length];
         for (int i = 0; i<n ;i++){
             Element temp = r2.duplicate().set(0);
@@ -120,17 +144,18 @@ public class Encryption {
         
     }
 
-    public Set<Integer> zeroEncoding(String m) {
-        Set<Integer> S0 = new HashSet<>();
+    public static Set<byte[]> zeroEncoding(String m) {
+        Set<byte[]> S0 = new HashSet<byte[]>();
         for (int i = 0; i < m.length(); i++) {
             if (m.charAt(i) == '0') {
-                String substring = m.substring(i, Math.min(i+2, m.length()));
-                int value = Integer.parseInt(substring, 2);
-                S0.add(value);
+                S0.add((m.substring(0, i) + "1").getBytes());
             }
         }
+        // System.out.println(S0.size());
         return S0;
     }
+
+
 
     private Element[] vietaFElements(Element[] roots, int ind) {
         // int n = roots.length;
@@ -191,10 +216,10 @@ public class Encryption {
             if (j != i) {
                 if (elements[i].equals(elements[j]))
                 {
-                    System.out.println("Duplicate elements in array");
-                    System.out.println(elements[i]);
-                    System.out.println(elements[j]);
-                    elements[i].setToRandom(); //TODO: fix this
+                    // System.out.println("Duplicate elements in array");
+                    // System.out.println(elements[i]);
+                    // System.out.println(elements[j]);
+                    // elements[i].setToRandom(); //TODO: fix this
                 }
                 // throw new IllegalArgumentException("Duplicate elements in array");
                 Element diff = elements[i].duplicate().sub(elements[j]); // calculate difference between i and j
@@ -206,13 +231,13 @@ public class Encryption {
     
     public Element[][] LagrangePolynomial(Element[] xi, GlobalParameters pp){
         Element[][] A = new Element[xi.length][xi.length];
-        System.out.println(xi.length);
-        System.out.println(xi[0]);
-        System.out.println(xi[1]);
+        // System.out.println(xi.length);
+        // System.out.println(xi[0]);
+        // System.out.println(xi[1]);
         for (int i = 0; i < xi.length; i++) {
             A[i] = vietaFElements(xi, i);
             Element a_denominator = calculateDenominator(xi, i);
-            System.out.println(a_denominator);
+            // System.out.println(a_denominator);
             for (Element a : A[i]){
                 a = a.mul(a_denominator.invert());
             }
